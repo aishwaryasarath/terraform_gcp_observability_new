@@ -1,11 +1,9 @@
 locals {
   gcs_error_conditions = {
-    "7"  = "PERMISSION_DENIED"   # 403
     "13" = "INTERNAL_ERROR"      # 500
     "14" = "SERVICE_UNAVAILABLE" # 503
   }
   gcs_alert_severity = {
-    "7"  = "ERROR"
     "13" = "CRITICAL"
     "14" = "CRITICAL"
   }
@@ -62,18 +60,9 @@ resource "google_monitoring_alert_policy" "gcs_error_alerts" {
     mime_type = "text/markdown"
   }
 
-  #notification_channels = [google_monitoring_notification_channel.email.id]
   notification_channels = var.notification_channel_ids
 }
 
-
-# resource "google_monitoring_notification_channel" "email" {
-#   display_name = "Email Alerts"
-#   type         = "email"
-#   labels = {
-#     email_address = "aishwaryasarath2025@gmail.com"
-#   }
-# }
 
 resource "google_logging_metric" "bucket_deletion_metric" {
   name   = "gcs_bucket_deletion_count"
@@ -124,4 +113,56 @@ resource "google_monitoring_alert_policy" "bucket_deletion_alert" {
   #notification_channels = [google_monitoring_notification_channel.email.id]
   notification_channels = var.notification_channel_ids
 
+}
+
+resource "google_logging_metric" "unauthorized_access_metric" {
+  name   = "${var.bucket_name}_gcs_unauthorized_access_count"
+  filter = <<EOT
+resource.type="gcs_bucket"
+protoPayload.authorizationInfo.permission="storage.objects.list"
+protoPayload.authorizationInfo.granted="false"
+resource.labels.bucket_name="${var.bucket_name}"
+EOT
+
+  metric_descriptor {
+    metric_kind  = "DELTA"
+    value_type   = "INT64"
+    unit         = "1"
+    display_name = "GCS Bucket Unauthorized Access"
+  }
+}
+
+resource "google_monitoring_alert_policy" "gcs_unauthorized_access_alert" {
+
+  display_name = "${var.bucket_name}_gcs_unauthorized_access_count"
+  combiner     = "OR"
+  enabled      = true
+  severity     = "ERROR"
+
+  conditions {
+    display_name = "GCS ${var.bucket_name} Unauthorized Access Detected"
+
+    condition_threshold {
+      filter          = "resource.type=\"gcs_bucket\" AND metric.type=\"logging.googleapis.com/user/${var.bucket_name}_gcs_unauthorized_access_count\""
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0
+      duration        = "0s"
+
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_DELTA"
+      }
+
+      trigger {
+        count = 1
+      }
+    }
+  }
+
+  documentation {
+    content   = "GCS bucket `${var.bucket_name}` unauthorized access detected. This may indicate a security breach or misconfiguration."
+    mime_type = "text/markdown"
+  }
+
+  notification_channels = var.notification_channel_ids
 }

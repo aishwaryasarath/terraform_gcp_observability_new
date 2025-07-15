@@ -81,3 +81,13 @@ module "notification_channels" {
   source      = "../modules/notification_channels"
   alert_email = "aishwaryasarath2025@gmail.com"
 }
+
+# module "redis_cluster" {
+#   source        = "../modules/redis_cluster"
+#   name          = "dev-redis-cluster"
+#   region        = "us-central1"
+#   shard_count   = 2
+#   replica_count = 1
+
+
+# }

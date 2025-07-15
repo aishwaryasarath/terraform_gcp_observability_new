@@ -1,0 +1,51 @@
+{
+  "protoPayload": {
+    "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+    "status": {
+      "code": 7,
+      "message": "Permission 'secretmanager.versions.access' denied for resource 'projects/intense-reason-458522-h4/secrets/test_vertex_ai_secret/versions/latest' (or it may not exist)."
+    },
+    "authenticationInfo": {},
+    "requestMetadata": {
+      "callerIp": "2601:248:500:2670:5d03:2ddf:4f:3443",
+      "callerSuppliedUserAgent": "google-cloud-sdk gcloud/529.0.0 command/gcloud.secrets.versions.access invocation-id/17c74f58fa7642bda9bc7c3b2bd09e64 environment/None environment-version/None client-os/MACOSX client-os-ver/24.4.0 client-pltf-arch/x86_64 interactive/True from-script/False python/3.12.8 term/xterm-256color (Macintosh; Intel Mac OS X 24.4.0),gzip(gfe)",
+      "requestAttributes": {
+        "time": "2025-07-14T19:35:03.221769875Z",
+        "auth": {}
+      },
+      "destinationAttributes": {}
+    },
+    "serviceName": "secretmanager.googleapis.com",
+    "methodName": "google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion",
+    "authorizationInfo": [
+      {
+        "permission": "secretmanager.versions.access",
+        "granted": false,
+        "resourceAttributes": {
+          "service": "secretmanager.googleapis.com",
+          "name": "projects/658025721055/secrets/test_vertex_ai_secret/versions/latest",
+          "type": "secretmanager.googleapis.com/SecretVersion"
+        },
+        "permissionType": "DATA_READ"
+      }
+    ],
+    "resourceName": "projects/658025721055/secrets/test_vertex_ai_secret/versions/latest",
+    "request": {
+      "@type": "type.googleapis.com/google.cloud.secretmanager.v1.AccessSecretVersionRequest",
+      "name": "projects/intense-reason-458522-h4/secrets/test_vertex_ai_secret/versions/latest"
+    }
+  },
+  "insertId": "yezx5ce7kkcj",
+  "resource": {
+    "type": "audited_resource",
+    "labels": {
+      "method": "google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion",
+      "service": "secretmanager.googleapis.com",
+      "project_id": "intense-reason-458522-h4"
+    }
+  },
+  "timestamp": "2025-07-14T19:35:03.135120673Z",
+  "severity": "ERROR",
+  "logName": "projects/intense-reason-458522-h4/logs/cloudaudit.googleapis.com%2Fdata_access",
+  "receiveTimestamp": "2025-07-14T19:35:03.868109286Z"
+}

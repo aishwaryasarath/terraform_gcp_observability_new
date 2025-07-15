@@ -1,0 +1,46 @@
+{
+  "name": "projects/intense-reason-458522-h4/alertPolicies/2050954823782008511",
+  "displayName": "test2node1",
+  "documentation": {},
+  "userLabels": {},
+  "conditions": [
+    {
+      "name": "projects/intense-reason-458522-h4/alertPolicies/2050954823782008511/conditions/3437081472409181400",
+      "displayName": "Cloud Memorystore Redis Instance - Evicted Keys",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_RATE"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"redis_instance\" AND resource.labels.node_id = \"node-0\" AND metric.type = \"redis.googleapis.com/stats/evicted_keys\"",
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "3600s",
+    "notificationPrompts": [
+      "OPENED",
+      "CLOSED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/intense-reason-458522-h4/notificationChannels/16837620454532209889"
+  ],
+  "creationRecord": {
+    "mutateTime": "2025-07-10T00:38:22.593396855Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2025-07-10T00:39:04.409760987Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  }
+}

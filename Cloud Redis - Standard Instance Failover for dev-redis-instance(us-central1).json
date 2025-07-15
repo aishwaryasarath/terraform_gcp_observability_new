@@ -1,0 +1,51 @@
+{
+  "name": "projects/intense-reason-458522-h4/alertPolicies/4467260624674006192",
+  "displayName": "Cloud Redis - Standard Instance Failover for dev-redis-instance(us-central1)",
+  "documentation": {
+    "content": "This alert fires if failover occurs for a standard tier instance. To ensure that alerts always fire, we recommend keeping the threshold value to 0",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "context": "redis",
+    "project_id": "intense-reason-458522-h4",
+    "region": "us-central1",
+    "instance_id": "dev-redis-instance",
+    "resource_type": "redis_instance"
+  },
+  "conditions": [
+    {
+      "name": "projects/intense-reason-458522-h4/alertPolicies/4467260624674006192/conditions/9282272210182140828",
+      "displayName": "Cloud Memorystore Redis Instance - Node Role",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_COUNT"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/intense-reason-458522-h4/locations/us-central1/instances/dev-redis-instance\" AND metric.type = \"redis.googleapis.com/replication/role\"",
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "604800s"
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/intense-reason-458522-h4/notificationChannels/16837620454532209889"
+  ],
+  "creationRecord": {
+    "mutateTime": "2025-07-09T18:18:19.661578219Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2025-07-10T01:12:10.471964650Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  }
+}

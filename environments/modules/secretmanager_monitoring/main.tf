@@ -1,11 +1,11 @@
 
-resource "google_monitoring_notification_channel" "email" {
-  display_name = "Email Alerts"
-  type         = "email"
-  labels = {
-    email_address = "aishwaryasarath2025@gmail.com"
-  }
-}
+# resource "google_monitoring_notification_channel" "email" {
+#   display_name = "Email Alerts"
+#   type         = "email"
+#   labels = {
+#     email_address = "aishwaryasarath2025@gmail.com"
+#   }
+# }
 
 
 

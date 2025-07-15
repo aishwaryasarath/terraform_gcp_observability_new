@@ -54,3 +54,24 @@ output "gcs_notification_channel_id" {
 }
 
 
+output "secret_alert_policy_names" {
+  description = "Map of Secret Manager alert policy display names per error type"
+  value       = module.secretmanager_monitoring.secret_error_alert_policy_names
+}
+
+
+output "secret_log_metric_names" {
+  description = "List of Secret Manager error log-based metric names"
+  value       = module.secretmanager_monitoring.secret_error_log_metric_names
+}
+
+
+output "secret_excessive_access_alert_name" {
+  description = "Alert policy display name for excessive access in Secret Manager"
+  value       = module.secretmanager_monitoring.secret_excessive_access_alert_name
+}
+
+output "secret_deleted_alert_name" {
+  description = "Alert policy display name for secret deletion in Secret Manager"
+  value       = module.secretmanager_monitoring.secret_deleted_alert_name
+}

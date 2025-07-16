@@ -23,6 +23,7 @@ resource "google_monitoring_alert_policy" "secret_manager_excessive_access" {
   display_name = "secret_manager_excessive_access"
   combiner     = "OR"
   enabled      = true
+  severity = "WARNING"
 
   depends_on = [
     google_logging_metric.secret_critical_errors

@@ -1,23 +1,10 @@
 
-# resource "google_monitoring_notification_channel" "email" {
-#   display_name = "Email Alerts"
-#   type         = "email"
-#   labels = {
-#     email_address = "aishwaryasarath2025@gmail.com"
-#   }
-# }
 
-
-
-# AccessSecretVersion
 resource "google_logging_metric" "secret_critical_errors" {
   for_each = {
     internal_error      = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=13"
     service_unavailable = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=14"
-    permission_denied   = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=7"
-    # unauthenticated     = "resource.type=\"secretmanager.googleapis.com/Secret\"AND protoPayload.status.code=16"
-    # failed_precond      = "resource.type=\"secretmanager.googleapis.com/Secret\"AND protoPayload.status.code=9"
-    excessive_access = "resource.type=\"audited_resource\" AND protoPayload.methodName=\"google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion\""
+    excessive_access    = "resource.type=\"audited_resource\" AND protoPayload.methodName=\"google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion\""
   }
 
   name        = each.key
@@ -33,14 +20,21 @@ resource "google_logging_metric" "secret_critical_errors" {
 }
 
 resource "google_monitoring_alert_policy" "secret_manager_excessive_access" {
-  display_name = "test_secret_manager_excessive"
+  display_name = "secret_manager_excessive_access"
   combiner     = "OR"
   enabled      = true
 
+  depends_on = [
+    google_logging_metric.secret_critical_errors
+  ]
+
   documentation {
-    content   = "test doc"
+    content   = <<-EOT
+    A secret version has been accessed excessively. This may indicate a potential security issue or misconfiguration.
+    For detailed investigation, check this runbook link: insert link here
+  EOT
     mime_type = "text/markdown"
-    subject   = "test"
+    subject   = "secret excessive access"
   }
 
   conditions {
@@ -70,7 +64,6 @@ resource "google_monitoring_alert_policy" "secret_manager_excessive_access" {
     notification_prompts = ["OPENED"]
   }
 
-  #notification_channels = [google_monitoring_notification_channel.email.id]
   notification_channels = var.notification_channel_ids
 }
 
@@ -82,11 +75,10 @@ resource "google_monitoring_alert_policy" "secret_error_alerts" {
   for_each = {
     internal_error      = "logging.googleapis.com/user/internal_error"
     service_unavailable = "logging.googleapis.com/user/service_unavailable"
-    permission_denied   = "logging.googleapis.com/user/permission_denied"
-    # unauthenticated     = "logging.googleapis.com/user/unauthenticated"
-    # failed_precond      = "logging.googleapis.com/user/failed_precond"
   }
-
+  depends_on = [
+    google_logging_metric.secret_critical_errors
+  ]
   display_name = "Secret Manager - ${each.key} Alert"
   combiner     = "OR"
 
@@ -118,9 +110,8 @@ resource "google_monitoring_alert_policy" "secret_deleted_alert" {
     }
   }
   notification_channels = var.notification_channel_ids
-  #fication_channels = [google_monitoring_notification_channel.email.id]
   documentation {
-    content   = "A secret was deleted from Secret Manager."
+    content   = "A secret was deleted from Secret Manager. For detailed investigation, check this runbook link: insert link here"
     mime_type = "text/markdown"
   }
   alert_strategy {
@@ -130,4 +121,51 @@ resource "google_monitoring_alert_policy" "secret_deleted_alert" {
     auto_close = "86400s"
   }
 
+}
+resource "google_logging_metric" "secret_unauthorized_access_metric" {
+  name   = "secret_unauthorized_access_count"
+  filter = <<EOT
+resource.type="audited_resource"
+protoPayload.authorizationInfo.permission="secretmanager.versions.access"
+protoPayload.authorizationInfo.granted="false"
+EOT
+
+  metric_descriptor {
+    metric_kind  = "DELTA"
+    value_type   = "INT64"
+    unit         = "1"
+    display_name = "Secret Unauthorized Access"
+  }
+}
+
+resource "google_monitoring_alert_policy" "gcs_unauthorized_access_alert" {
+
+  display_name = "secret_unauthorized_access_count"
+  combiner     = "OR"
+  enabled      = true
+  severity     = "ERROR"
+
+  depends_on = [
+    google_logging_metric.secret_unauthorized_access_metric
+  ]
+
+  conditions {
+    display_name = "Secret Unauthorized Access attempt Detected"
+
+    condition_threshold {
+      filter          = "resource.type=\"audited_resource\" AND metric.type=\"logging.googleapis.com/user/secret_unauthorized_access_count\""
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0
+      duration        = "0s"
+
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_DELTA"
+      }
+
+      trigger {
+        count = 1
+      }
+    }
+  }
 }

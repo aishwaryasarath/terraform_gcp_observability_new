@@ -34,7 +34,9 @@ resource "google_monitoring_alert_policy" "gcs_error_alerts" {
   combiner     = "OR"
   enabled      = true
   severity     = local.gcs_alert_severity[each.key]
-
+  depends_on = [
+    google_logging_metric.gcs_error_metrics
+  ]
   conditions {
     display_name = "GCS ${each.value} Error (${each.key}) Detected"
 
@@ -85,6 +87,10 @@ resource "google_monitoring_alert_policy" "bucket_deletion_alert" {
   combiner     = "OR"
   enabled      = true
   severity     = "CRITICAL"
+
+  depends_on = [
+    google_logging_metric.bucket_deletion_metric
+  ]
 
   conditions {
     display_name = "Bucket deletion detected"
@@ -138,7 +144,9 @@ resource "google_monitoring_alert_policy" "gcs_unauthorized_access_alert" {
   combiner     = "OR"
   enabled      = true
   severity     = "ERROR"
-
+  depends_on = [
+    google_logging_metric.unauthorized_access_metric
+  ]
   conditions {
     display_name = "GCS ${var.bucket_name} Unauthorized Access Detected"
 

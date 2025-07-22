@@ -24,3 +24,21 @@ variable "display_name" {
   default     = null
   description = "Optional display name"
 }
+variable "read_replicas_mode" {
+  type        = string
+  default     = "READ_REPLICAS_ENABLED"
+  description = "Read replica mode for Redis instance"
+}
+variable "project" {
+  type        = string
+  description = "GCP project ID"
+  default     = null
+
+}
+variable "replica_count" {
+  type        = number
+  default     = 1
+  description = "Number of read replicas for the Redis instance"
+
+}
+

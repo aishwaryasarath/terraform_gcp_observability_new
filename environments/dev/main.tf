@@ -11,31 +11,33 @@ module "bucket1" {
   source   = "../modules/gcs_bucket"
   name     = "aish-bucket-1-${var.project}"
   location = "US"
+  project  = var.project
 }
 
 module "bucket2" {
   source   = "../modules/gcs_bucket"
   name     = "aish-bucket-2-${var.project}"
   location = "US"
+  project  = var.project
 }
 
-# module "redis_monitoring" {
-#   source            = "../modules/redis_monitoring"
-#   project_id        = var.project
-#   redis_instance_id = module.redis_instance.instance_id
-#   environment       = "dev"
-#   region            = "us-central1"
+module "redis_monitoring" {
+  source            = "../modules/redis_monitoring"
+  project_id        = var.project
+  redis_instance_id = module.redis_instance.instance_id
+  environment       = "dev"
+  region            = var.region
 
-# }
+}
 
-# module "redis_instance" {
-#   source         = "../modules/redis_instance"
-#   name           = "dev-redis-instance"
-#   region         = "us-central1"
-#   tier           = "STANDARD_HA"
-#   memory_size_gb = 1
-#   display_name   = "Dev Redis"
-# }
+module "redis_instance" {
+  source         = "../modules/redis_instance"
+  name           = "redis-ue1-${var.environment}"
+  region         = var.region
+  tier           = "STANDARD_HA"
+  memory_size_gb = 5
+  display_name   = "Dev Redis"
+}
 
 module "gcs_monitoring" {
   source                   = "../modules/gcs_monitoring"

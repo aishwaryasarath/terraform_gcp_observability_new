@@ -16,13 +16,13 @@ output "bucket2_name" {
 }
 
 
-# output "redis_alert_policy_ids" {
-#   value = module.redis_monitoring.alert_policy_ids
-# }
+output "redis_alert_policy_ids" {
+  value = module.redis_monitoring.alert_policy_ids
+}
 
-# output "redis_alert_policy_names" {
-#   value = module.redis_monitoring.alert_policy_names
-# }
+output "redis_alert_policy_names" {
+  value = module.redis_monitoring.alert_policy_names
+}
 
 # output "redis_oom_logging_metric" {
 #   value = module.redis_monitoring.oom_logging_metric_name
@@ -74,4 +74,9 @@ output "secret_excessive_access_alert_name" {
 output "secret_deleted_alert_name" {
   description = "Alert policy display name for secret deletion in Secret Manager"
   value       = module.secretmanager_monitoring.secret_deleted_alert_name
+}
+
+output "redis_instance_id" {
+  description = "ID of the Redis instance created"
+  value       = module.redis_instance.instance_id
 }

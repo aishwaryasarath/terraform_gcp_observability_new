@@ -1,42 +1,44 @@
 
 # --------------custom --------------
-resource "google_logging_metric" "oom_errors" {
-  name   = "oom_errors"
-  filter = "resource.type=\"redis_instance\" AND textPayload:\"OOM command not allowed\""
-  metric_descriptor {
-    metric_kind  = "DELTA"
-    value_type   = "INT64"
-    unit         = "1"
-    display_name = "Redis OOM Errors"
-  }
-}
+# resource "google_logging_metric" "oom_errors" {
+#   name    = "oom-errors-${var.environment}-${var.redis_instance_id}"
+#   project = var.project_id
+#   filter  = "resource.type=\"redis_instance\" resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_id}\" AND textPayload:\"OOM command not allowed\""
+#   metric_descriptor {
+#     metric_kind  = "DELTA"
+#     value_type   = "INT64"
+#     unit         = "1"
+#     display_name = "Redis OOM Errors"
+#   }
+# }
 
 
 
 
-resource "google_monitoring_alert_policy" "test_eviction2" {
-  display_name = "test-eviction"
+resource "google_monitoring_alert_policy" "redis_eviction" {
+  display_name = "eviction-${var.environment}-${var.redis_instance_id}"
+  project      = var.project_id
   combiner     = "OR"
   enabled      = true
-
+  severity     = "WARNING"
   alert_strategy {
     auto_close           = "21600s"
     notification_prompts = ["OPENED", "CLOSED"]
   }
 
   notification_channels = [google_monitoring_notification_channel.email.id]
-  user_labels = {
-    project_id    = var.project_id
-    context       = "redis"
-    instance_id   = var.redis_instance_id
-    resource_type = "redis_instance"
-    region        = var.region
-  }
+  # user_labels = {
+  #   project_id    = var.project_id
+  #   context       = "redis"
+  #   instance_id   = var.redis_instance_id
+  #   resource_type = "redis_instance"
+  #   region        = var.region
+  # }
   conditions {
     display_name = "Cloud Memorystore Redis Instance - Evicted Keys"
 
     condition_threshold {
-      filter          = "resource.type = \"redis_instance\" AND metric.type = \"redis.googleapis.com/stats/evicted_keys\""
+      filter          = "resource.type = \"redis_instance\" resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_id}\" AND metric.type = \"redis.googleapis.com/stats/evicted_keys\""
       comparison      = "COMPARISON_GT"
       duration        = "0s"
       threshold_value = 1
@@ -53,33 +55,35 @@ resource "google_monitoring_alert_policy" "test_eviction2" {
   }
 }
 
-resource "google_monitoring_alert_policy" "oom_error_alert" {
-  display_name = "${var.environment} - Redis OOM Error"
-  combiner     = "OR"
-  conditions {
-    display_name = "OOM Error > 0"
-    condition_threshold {
-      filter          = "resource.type=\"redis_instance\" AND metric.type=\"logging.googleapis.com/user/oom_errors\""
-      comparison      = "COMPARISON_GT"
-      threshold_value = 0
-      duration        = "60s"
-      trigger {
-        count = 1
-      }
-    }
-  }
-  user_labels = {
-    project_id    = var.project_id
-    context       = "redis"
-    instance_id   = var.redis_instance_id
-    resource_type = "redis_instance"
-    region        = var.region
-  }
-  notification_channels = [google_monitoring_notification_channel.email.id]
-}
+# resource "google_monitoring_alert_policy" "oom_error_alert" {
+#   project      = var.project_id
+#   display_name = "${var.redis_instance_id} - Redis OOM Error"
+#   combiner     = "OR"
+#   conditions {
+#     display_name = "OOM Error > 0"
+#     condition_threshold {
+#       filter          = "resource.type=\"redis_instance\" resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_id}\" AND metric.type=\"logging.googleapis.com/user/oom_errors-${var.environment}-${var.redis_instance_id}\""
+#       comparison      = "COMPARISON_GT"
+#       threshold_value = 0
+#       duration        = "60s"
+#       trigger {
+#         count = 1
+#       }
+#     }
+#   }
+#   # user_labels = {
+#   #   project_id    = var.project_id
+#   #   context       = "redis"
+#   #   instance_id   = var.redis_instance_id
+#   #   resource_type = "redis_instance"
+#   #   region        = var.region
+#   # }
+#   notification_channels = [google_monitoring_notification_channel.email.id]
+# }
 
 
 resource "google_monitoring_notification_channel" "email" {
+  project      = var.project_id
   display_name = "Email Alerts"
   type         = "email"
   labels = {
@@ -91,7 +95,8 @@ resource "google_monitoring_notification_channel" "email" {
 
 # --------------from gcp --------------
 resource "google_monitoring_alert_policy" "redis_memory_utilization" {
-  display_name = "Cloud Redis - System Memory Utilization for dev-redis-instance(us-central1)"
+  project      = var.project_id
+  display_name = "System Memory Utilization for ${var.environment} - ${var.redis_instance_id}"
 
   documentation {
     content   = "This alert fires if the system memory utilization is above the set threshold. The utilization is measured on a scale of 0 to 1."
@@ -100,20 +105,21 @@ resource "google_monitoring_alert_policy" "redis_memory_utilization" {
 
   combiner = "OR"
   enabled  = true
+  severity = "CRITICAL"
 
-  user_labels = {
-    instance_id   = "dev-redis-instance"
-    region        = "us-central1"
-    resource_type = "redis_instance"
-    project_id    = "intense-reason-458522-h4"
-    context       = "redis"
-  }
+  # user_labels = {
+
+  #   region        = "us-central1"
+  #   resource_type = "redis_instance"
+  #   project_id    = "intense-reason-458522-h4"
+  #   context       = "redis"
+  # }
 
   conditions {
     display_name = "Cloud Memorystore Redis Instance - System Memory Usage Ratio"
 
     condition_threshold {
-      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/us-central1/instances/${var.redis_instance_id}\" AND metric.type = \"redis.googleapis.com/stats/memory/system_memory_usage_ratio\""
+      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_id}\" AND metric.type = \"redis.googleapis.com/stats/memory/system_memory_usage_ratio\""
 
       duration        = "0s"
       comparison      = "COMPARISON_GT"
@@ -138,7 +144,9 @@ resource "google_monitoring_alert_policy" "redis_memory_utilization" {
 }
 
 resource "google_monitoring_alert_policy" "redis_cpu_utilization" {
-  display_name = "Cloud Redis - Redis Engine CPU utilization for dev-redis-instance(us-central1)"
+  project      = var.project_id
+  display_name = "CPU utilization for ${var.environment} - ${var.redis_instance_id}"
+  severity     = "WARNING"
 
   documentation {
     content   = "This alert fires if the Redis Engine CPU Utilization goes above the set threshold. The utilization is measured on a scale of 0 to 1. "
@@ -148,19 +156,19 @@ resource "google_monitoring_alert_policy" "redis_cpu_utilization" {
   combiner = "OR"
   enabled  = true
 
-  user_labels = {
-    instance_id   = "dev-redis-instance"
-    region        = "us-central1"
-    resource_type = "redis_instance"
-    project_id    = "intense-reason-458522-h4"
-    context       = "redis"
-  }
+  # user_labels = {
+  #   instance_id   = "dev-redis-instance"
+  #   region        = "us-central1"
+  #   resource_type = "redis_instance"
+  #   project_id    = "intense-reason-458522-h4"
+  #   context       = "redis"
+  # }
 
   conditions {
     display_name = "Cloud Memorystore Redis Instance - Redis Engine CPU utilization"
 
     condition_threshold {
-      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/us-central1/instances/${var.redis_instance_id}\" AND metric.type = \"redis.googleapis.com/stats/cpu_utilization_main_thread\""
+      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_id}\" AND metric.type = \"redis.googleapis.com/stats/cpu_utilization_main_thread\""
 
 
       duration        = "0s"
@@ -187,7 +195,8 @@ resource "google_monitoring_alert_policy" "redis_cpu_utilization" {
   notification_channels = [google_monitoring_notification_channel.email.id]
 }
 resource "google_monitoring_alert_policy" "redis_failover" {
-  display_name = "Cloud Redis - Standard Instance Failover for dev-redis-instance(us-central1)"
+  display_name = "Failover alert ${var.environment} - ${var.redis_instance_id}"
+  project      = var.project_id
 
   documentation {
     content   = "This alert fires if failover occurs for a standard tier instance. To ensure that alerts always fire, we recommend keeping the threshold value to 0"
@@ -197,13 +206,14 @@ resource "google_monitoring_alert_policy" "redis_failover" {
   combiner = "OR"
   enabled  = true
 
-  user_labels = {
-    project_id    = var.project_id
-    context       = "redis"
-    instance_id   = var.redis_instance_id
-    resource_type = "redis_instance"
-    region        = var.region
-  }
+  # user_labels = {
+  #   project_id    = var.project_id
+  #   context       = "redis"
+  #   instance_id   = var.redis_instance_id
+  #   resource_type = "redis_instance"
+  #   region        = var.region
+  # }
+  severity = "ERROR"
 
   conditions {
     display_name = "Cloud Memorystore Redis Instance - Failover"

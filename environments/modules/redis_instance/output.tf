@@ -6,3 +6,7 @@ output "instance_id" {
 output "id" {
   value = google_redis_instance.redis_instance.id
 }
+
+output "redis_instance_name" {
+  value = google_redis_instance.redis_instance.name
+}

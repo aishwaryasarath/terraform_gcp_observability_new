@@ -11,3 +11,6 @@ variable "environment" {
 #   description = "ID of the Redis instance to monitor"
 #   type        = string
 # }
+variable "region_code" {
+
+}

@@ -1,6 +1,12 @@
-variable "redis_instance_id" {
+# variable "redis_instance_id" {
+#   type        = string
+#   description = "Redis instance ID"
+# }
+
+variable "redis_instance_name" {
   type        = string
-  description = "Redis instance ID"
+  description = "Redis instance name"
+
 }
 
 

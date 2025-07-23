@@ -7,6 +7,7 @@
 #   tags          = ["web", "dev"]
 # }
 
+
 module "bucket1" {
   source   = "../modules/gcs_bucket"
   name     = "aish-bucket-1-${var.project}"
@@ -21,23 +22,23 @@ module "bucket2" {
   project  = var.project
 }
 
-module "redis_monitoring" {
-  source            = "../modules/redis_monitoring"
-  project_id        = var.project
-  redis_instance_id = module.redis_instance.instance_id
-  environment       = "dev"
-  region            = var.region
+# module "redis_monitoring" {
+#   source              = "../modules/redis_monitoring"
+#   project_id          = var.project
+#   redis_instance_name = module.redis_instance.redis_instance_name
+#   environment         = "dev"
+#   region              = var.region
 
-}
+# }
 
-module "redis_instance" {
-  source         = "../modules/redis_instance"
-  name           = "redis-ue1-${var.environment}"
-  region         = var.region
-  tier           = "STANDARD_HA"
-  memory_size_gb = 5
-  display_name   = "Dev Redis"
-}
+# module "redis_instance" {
+#   source         = "../modules/redis_instance"
+#   name           = "redis-ue1-${var.environment}"
+#   region         = var.region
+#   tier           = "STANDARD_HA"
+#   memory_size_gb = 5
+#   display_name   = "Dev Redis"
+# }
 
 module "gcs_monitoring" {
   source                   = "../modules/gcs_monitoring"
@@ -46,9 +47,18 @@ module "gcs_monitoring" {
 
 }
 
-module "secretmanager_monitoring" {
-  source                   = "../modules/secretmanager_monitoring"
+# module "secretmanager_monitoring" {
+#   source                   = "../modules/secretmanager_monitoring"
+#   notification_channel_ids = [module.notification_channels.email_channel_id]
+
+# }
+
+
+module "vertex_ai_monitoring" {
+  source                   = "../modules/vertex_ai_monitoring"
+  project_id               = var.project
   notification_channel_ids = [module.notification_channels.email_channel_id]
+  environment              = "dev"
 
 }
 
@@ -93,3 +103,15 @@ module "notification_channels" {
 
 
 # }
+
+module "some_backup_bucket" {
+  source   = "../modules/backup_bucket"
+  name     = "some-backup-bucket-${var.region_code}-${var.environment}"
+  project  = var.project
+  location = "US"
+
+  storage_class = "STANDARD"
+  versioning    = true
+  force_destroy = false
+
+}

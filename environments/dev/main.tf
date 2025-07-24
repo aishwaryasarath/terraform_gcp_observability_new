@@ -41,12 +41,11 @@ module "bucket2" {
 # }
 
 module "gcs_monitoring" {
-  source                   = "../modules/gcs_monitoring"
-  bucket_name              = module.bucket2.bucket_name
-  notification_channel_ids = [module.notification_channels.email_channel_id]
-
+  source      = "../modules/gcs_monitoring"
+  bucket_name = module.bucket2.bucket_name
+  #notification_channel_ids = [module.notification_channels.email_channel_id]
+  notification_channel_ids = [for k, m in module.notification_channels : m.email_channel_id]
 }
-
 # module "secretmanager_monitoring" {
 #   source                   = "../modules/secretmanager_monitoring"
 #   notification_channel_ids = [module.notification_channels.email_channel_id]
@@ -57,7 +56,7 @@ module "gcs_monitoring" {
 module "vertex_ai_monitoring" {
   source                   = "../modules/vertex_ai_monitoring"
   project_id               = var.project
-  notification_channel_ids = [module.notification_channels.email_channel_id]
+  notification_channel_ids = [for k, m in module.notification_channels : m.email_channel_id]
   environment              = "dev"
 
 }
@@ -90,9 +89,17 @@ resource "google_project_iam_audit_config" "secretmanager_audit" {
 }
 
 module "notification_channels" {
-  source      = "../modules/notification_channels"
-  alert_email = "aishwaryasarath2025@gmail.com"
+  source = "../modules/notification_channels"
+  for_each = {
+    primary = "aishwaryasarath2025@gmail.com"
+    backup  = "aishwaryasarath@gmail.com"
+  }
+  alert_email = each.value
+  project     = var.project
+
+  #alert_email = "aishwaryasarath2025@gmail.com"
 }
+
 
 # module "redis_cluster" {
 #   source        = "../modules/redis_cluster"

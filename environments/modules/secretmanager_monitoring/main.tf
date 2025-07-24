@@ -2,9 +2,9 @@
 
 resource "google_logging_metric" "secret_critical_errors" {
   for_each = {
-    internal_error      = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=13"
-    service_unavailable = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=14"
-    excessive_access    = "resource.type=\"audited_resource\" AND protoPayload.methodName=\"google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion\""
+    secret_manager_internal_error      = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=13"
+    secret_manager_service_unavailable = "resource.type=\"secretmanager.googleapis.com/Secret\" AND protoPayload.status.code=14"
+    secret_manager_excessive_access    = "resource.type=\"audited_resource\" AND protoPayload.methodName=\"google.cloud.secretmanager.v1.SecretManagerService.AccessSecretVersion\""
   }
 
   name        = each.key
@@ -42,7 +42,7 @@ resource "google_monitoring_alert_policy" "secret_manager_excessive_access" {
     display_name = "Audited Resource - logging/user/excessive_access"
 
     condition_threshold {
-      filter          = "resource.type = \"audited_resource\" AND metric.type = \"logging.googleapis.com/user/excessive_access\""
+      filter          = "resource.type = \"audited_resource\" AND metric.type = \"logging.googleapis.com/user/secret_manager_excessive_access\""
       duration        = "60s" #300s
       comparison      = "COMPARISON_GT"
       threshold_value = 20

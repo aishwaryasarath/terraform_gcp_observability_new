@@ -115,3 +115,8 @@ module "some_backup_bucket" {
   force_destroy = false
 
 }
+# GCS does not have to work on dev env.
+
+# make vertex ai work in all envs
+# SM works on all envs
+# confirm redis monitoring works on all envs

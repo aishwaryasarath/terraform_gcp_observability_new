@@ -10,3 +10,9 @@ output "id" {
 output "redis_instance_name" {
   value = google_redis_instance.redis_instance.name
 }
+
+output "redis_instance_host" {
+  value = google_redis_instance.redis_instance.host
+
+}
+

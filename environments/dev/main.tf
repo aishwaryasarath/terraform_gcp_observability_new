@@ -22,23 +22,25 @@ module "bucket2" {
   project  = var.project
 }
 
-# module "redis_monitoring" {
-#   source              = "../modules/redis_monitoring"
-#   project_id          = var.project
-#   redis_instance_name = module.redis_instance.redis_instance_name
-#   environment         = "dev"
-#   region              = var.region
+module "redis_monitoring" {
+  source              = "../modules/redis_monitoring"
+  project_id          = var.project
+  redis_instance_id   = module.redis_instance.instance_id
+  redis_instance_name = module.redis_instance.redis_instance_name
+  environment         = "dev"
+  #region            = var.region
 
-# }
+}
 
-# module "redis_instance" {
-#   source         = "../modules/redis_instance"
-#   name           = "redis-ue1-${var.environment}"
-#   region         = var.region
-#   tier           = "STANDARD_HA"
-#   memory_size_gb = 5
-#   display_name   = "Dev Redis"
-# }
+
+module "redis_instance" {
+  source         = "../modules/redis_instance"
+  name           = "redis-ue1-${var.environment}"
+  region         = var.region
+  tier           = "STANDARD_HA"
+  memory_size_gb = 5
+  display_name   = "Dev Redis"
+}
 
 module "gcs_monitoring" {
   source      = "../modules/gcs_monitoring"

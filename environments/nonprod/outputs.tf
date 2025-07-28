@@ -39,3 +39,26 @@ output "unauthorized_access_alert_name" {
     k => m.unauthorized_access_alert_name
   }
 }
+
+output "redis_instance_hosts" {
+  value = {
+    for k, m in module.redis_instance :
+    k => m.redis_instance_host
+  }
+
+}
+
+output "redis_instance_name" {
+  value = {
+    for k, m in module.redis_instance :
+    k => m.redis_instance_name
+  }
+
+}
+output "redis_instance_id" {
+  value = {
+    for k, m in module.redis_instance :
+    k => m.id
+  }
+
+}

@@ -11,37 +11,37 @@ locals {
 
 
 
-# module "redis_instance" {
-#   for_each           = local.regions
-#   source             = "../modules/redis_instance"
-#   name               = "redis-${local.region_aliases[each.key]}-${var.environment}"
-#   project            = var.project
-#   region             = each.value
-#   read_replicas_mode = "READ_REPLICAS_ENABLED"
-#   memory_size_gb     = 5
-#   replica_count      = 1
+module "redis_instance" {
+  for_each           = local.regions
+  source             = "../modules/redis_instance"
+  name               = "redis-${local.region_aliases[each.key]}-${var.environment}"
+  project            = var.project
+  region             = each.value
+  read_replicas_mode = "READ_REPLICAS_ENABLED"
+  memory_size_gb     = 5
+  replica_count      = 1
 
 
-# }
+}
+
+module "redis_instance_monitoring" {
+  for_each = module.redis_instance
+
+  source     = "../modules/redis_monitoring"
+  project_id = var.project
+
+  environment         = var.environment
+  redis_instance_id   = each.value.instance_id
+  redis_instance_name = each.value.redis_instance_name
+
+}
 
 module "notification_channels" {
   source      = "../modules/notification_channels"
   alert_email = "aishwaryasarath2025@gmail.com"
   project     = var.project
 }
-# module "redis_monitoring" {
-#   for_each = local.regions
 
-#   source      = "../modules/redis_monitoring"
-#   project_id  = var.project
-#   region      = each.value
-#   environment = var.environment
-
-#   # build the instance name exactly how you built it for redis_instance
-#   redis_instance_id = "redis-${local.region_aliases[each.key]}-${var.environment}"
-
-#   # if your module needs notification_channels or other vars, pass them too
-# }
 module "some_backup_bucket" {
   for_each      = local.regions
   source        = "../modules/backup_bucket"
@@ -73,3 +73,5 @@ module "gcs_monitoring" {
 #   environment              = "nonprod"
 
 # }
+
+

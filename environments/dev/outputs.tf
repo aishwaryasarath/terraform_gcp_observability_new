@@ -76,16 +76,16 @@
 #   value       = module.secretmanager_monitoring.secret_deleted_alert_name
 # }
 
-# output "redis_instance_id" {
-#   description = "ID of the Redis instance created"
-#   value       = module.redis_instance.instance_id
-# }
+output "redis_instance_id" {
+  description = "ID of the Redis instance created"
+  value       = module.redis_instance.instance_id
+}
 
-# output "redis_instance_name" {
-#   description = "Name of the Redis instance created"
-#   value       = module.redis_instance.redis_instance_name
+output "redis_instance_name" {
+  description = "Name of the Redis instance created"
+  value       = module.redis_instance.redis_instance_name
 
-# }
+}
 output "notification_channel_ids" {
   description = "All notification channel IDs"
   value       = [for k, m in module.notification_channels : m.email_channel_id]

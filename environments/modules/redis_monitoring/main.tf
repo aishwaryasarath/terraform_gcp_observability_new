@@ -38,7 +38,7 @@ resource "google_monitoring_alert_policy" "redis_eviction" {
     display_name = "Cloud Memorystore Redis Instance - Evicted Keys"
 
     condition_threshold {
-      filter          = "resource.type = \"redis_instance\" resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_name}\" AND metric.type = \"redis.googleapis.com/stats/evicted_keys\""
+      filter          = "resource.type = \"redis_instance\" resource.labels.instance_id = \"${var.redis_instance_id}\"  AND metric.type = \"redis.googleapis.com/stats/evicted_keys\""
       comparison      = "COMPARISON_GT"
       duration        = "0s"
       threshold_value = 1
@@ -119,7 +119,7 @@ resource "google_monitoring_alert_policy" "redis_memory_utilization" {
     display_name = "Cloud Memorystore Redis Instance - System Memory Usage Ratio"
 
     condition_threshold {
-      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_name}\" AND metric.type = \"redis.googleapis.com/stats/memory/system_memory_usage_ratio\""
+      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"${var.redis_instance_id}\"  AND metric.type = \"redis.googleapis.com/stats/memory/system_memory_usage_ratio\""
 
       duration        = "0s"
       comparison      = "COMPARISON_GT"
@@ -168,7 +168,7 @@ resource "google_monitoring_alert_policy" "redis_cpu_utilization" {
     display_name = "Cloud Memorystore Redis Instance - Redis Engine CPU utilization"
 
     condition_threshold {
-      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_name}\" AND metric.type = \"redis.googleapis.com/stats/cpu_utilization_main_thread\""
+      filter = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"${var.redis_instance_id}\"  AND metric.type = \"redis.googleapis.com/stats/cpu_utilization_main_thread\""
 
 
       duration        = "0s"
@@ -219,7 +219,7 @@ resource "google_monitoring_alert_policy" "redis_failover" {
     display_name = "Cloud Memorystore Redis Instance - Failover"
 
     condition_threshold {
-      filter          = "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_name}\" AND metric.type = \"redis.googleapis.com/replication/role\""
+      filter          = "resource.type = \"redis_instance\" AND  resource.labels.instance_id = \"${var.redis_instance_id}\"  AND metric.type = \"redis.googleapis.com/replication/role\""
       duration        = "0s"
       comparison      = "COMPARISON_GT"
       threshold_value = 0

@@ -1,96 +1,4 @@
 
-# #--------------custom --------------
-# resource "google_logging_metric" "oom_errors" {
-#   name    = "oom-errors-${var.environment}-${var.redis_instance_name}"
-#   project = var.project_id
-#   filter  = "resource.type=\"redis_instance\" resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_name}\" AND textPayload:\"OOM command not allowed\""
-#   metric_descriptor {
-#     metric_kind  = "DELTA"
-#     value_type   = "INT64"
-#     unit         = "1"
-#     display_name = "Redis OOM Errors"
-#   }
-# }
-
-
-
-
-resource "google_monitoring_alert_policy" "redis_eviction" {
-  display_name = "eviction-${var.environment}-${var.redis_instance_name}"
-  project      = var.project_id
-  combiner     = "OR"
-  enabled      = true
-  severity     = "WARNING"
-  alert_strategy {
-    auto_close           = "21600s"
-    notification_prompts = ["OPENED", "CLOSED"]
-  }
-
-  notification_channels = [google_monitoring_notification_channel.email.id]
-  # user_labels = {
-  #   project_id    = var.project_id
-  #   context       = "redis"
-  #   instance_id   = var.redis_instance_name
-  #   resource_type = "redis_instance"
-  #   region        = var.region
-  # }
-  conditions {
-    display_name = "Cloud Memorystore Redis Instance - Evicted Keys"
-
-    condition_threshold {
-      filter          = "resource.type = \"redis_instance\" resource.labels.instance_id = \"${var.redis_instance_id}\"  AND metric.type = \"redis.googleapis.com/stats/evicted_keys\""
-      comparison      = "COMPARISON_GT"
-      duration        = "0s"
-      threshold_value = 1
-
-      trigger {
-        count = 1
-      }
-
-      aggregations {
-        alignment_period   = "300s"
-        per_series_aligner = "ALIGN_RATE"
-      }
-    }
-  }
-}
-
-# resource "google_monitoring_alert_policy" "oom_error_alert" {
-#   project      = var.project_id
-#   display_name = "${var.redis_instance_name} - Redis OOM Error"
-#   combiner     = "OR"
-#   conditions {
-#     display_name = "OOM Error > 0"
-#     condition_threshold {
-#       filter          = "resource.type=\"redis_instance\" resource.labels.instance_id = \"projects/${var.project_id}/locations/${var.region}/instances/${var.redis_instance_name}\" AND metric.type=\"logging.googleapis.com/user/oom_errors-${var.environment}-${var.redis_instance_name}\""
-#       comparison      = "COMPARISON_GT"
-#       threshold_value = 0
-#       duration        = "60s"
-#       trigger {
-#         count = 1
-#       }
-#     }
-#   }
-#   # user_labels = {
-#   #   project_id    = var.project_id
-#   #   context       = "redis"
-#   #   instance_id   = var.redis_instance_name
-#   #   resource_type = "redis_instance"
-#   #   region        = var.region
-#   # }
-#   notification_channels = [google_monitoring_notification_channel.email.id]
-# }
-
-
-resource "google_monitoring_notification_channel" "email" {
-  project      = var.project_id
-  display_name = "Email Alerts"
-  type         = "email"
-  labels = {
-    email_address = "aishwaryasarath2025@gmail.com"
-  }
-}
-
 
 
 # --------------from gcp --------------
@@ -140,7 +48,8 @@ resource "google_monitoring_alert_policy" "redis_memory_utilization" {
     auto_close = "604800s"
   }
 
-  notification_channels = [google_monitoring_notification_channel.email.id]
+  #notification_channels = [google_monitoring_notification_channel.email.id]
+  notification_channels = var.notification_channel_ids
 }
 
 resource "google_monitoring_alert_policy" "redis_cpu_utilization" {
@@ -192,7 +101,8 @@ resource "google_monitoring_alert_policy" "redis_cpu_utilization" {
     auto_close = "604800s"
   }
 
-  notification_channels = [google_monitoring_notification_channel.email.id]
+  #notification_channels = [google_monitoring_notification_channel.email.id]
+  notification_channels = var.notification_channel_ids
 }
 resource "google_monitoring_alert_policy" "redis_failover" {
   display_name = "Failover alert ${var.environment} - ${var.redis_instance_name}"
@@ -239,5 +149,6 @@ resource "google_monitoring_alert_policy" "redis_failover" {
     auto_close = "604800s"
   }
 
-  notification_channels = [google_monitoring_notification_channel.email.id]
+  #notification_channels = [google_monitoring_notification_channel.email.id]
+  notification_channels = var.notification_channel_ids
 }

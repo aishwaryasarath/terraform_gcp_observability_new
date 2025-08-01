@@ -28,8 +28,31 @@ module "redis_monitoring" {
   redis_instance_id   = module.redis_instance.instance_id
   redis_instance_name = module.redis_instance.redis_instance_name
   environment         = "dev"
+  notification_channel_ids = [
+    google_monitoring_notification_channel.primary_email.id,
+    google_monitoring_notification_channel.backup_email.id
+  ]
   #region            = var.region
 
+}
+
+
+resource "google_monitoring_notification_channel" "primary_email" {
+  project      = var.project
+  display_name = "Primary Email Alert"
+  type         = "email"
+  labels = {
+    email_address = "aishwaryasarath2025@gmail.com"
+  }
+}
+
+resource "google_monitoring_notification_channel" "backup_email" {
+  project      = var.project
+  display_name = "Backup Email Alert"
+  type         = "email"
+  labels = {
+    email_address = "aishwaryasarath@gmail.com"
+  }
 }
 
 
@@ -46,7 +69,10 @@ module "gcs_monitoring" {
   source      = "../modules/gcs_monitoring"
   bucket_name = module.bucket2.bucket_name
   #notification_channel_ids = [module.notification_channels.email_channel_id]
-  notification_channel_ids = [for k, m in module.notification_channels : m.email_channel_id]
+  notification_channel_ids = [
+    google_monitoring_notification_channel.primary_email.id,
+    google_monitoring_notification_channel.backup_email.id
+  ]
 }
 # module "secretmanager_monitoring" {
 #   source                   = "../modules/secretmanager_monitoring"
@@ -56,10 +82,13 @@ module "gcs_monitoring" {
 
 
 module "vertex_ai_monitoring" {
-  source                   = "../modules/vertex_ai_monitoring"
-  project_id               = var.project
-  notification_channel_ids = [for k, m in module.notification_channels : m.email_channel_id]
-  environment              = "dev"
+  source     = "../modules/vertex_ai_monitoring"
+  project_id = var.project
+  notification_channel_ids = [
+    google_monitoring_notification_channel.primary_email.id,
+    google_monitoring_notification_channel.backup_email.id
+  ]
+  environment = "dev"
 
 }
 
@@ -90,17 +119,7 @@ resource "google_project_iam_audit_config" "secretmanager_audit" {
   }
 }
 
-module "notification_channels" {
-  source = "../modules/notification_channels"
-  for_each = {
-    primary = "aishwaryasarath2025@gmail.com"
-    backup  = "aishwaryasarath@gmail.com"
-  }
-  alert_email = each.value
-  project     = var.project
 
-  #alert_email = "aishwaryasarath2025@gmail.com"
-}
 
 
 # module "redis_cluster" {

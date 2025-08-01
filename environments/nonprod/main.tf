@@ -33,14 +33,48 @@ module "redis_instance_monitoring" {
   environment         = var.environment
   redis_instance_id   = each.value.instance_id
   redis_instance_name = each.value.redis_instance_name
+  notification_channel_ids = [
+    google_monitoring_notification_channel.primary_email.id,
+    google_monitoring_notification_channel.backup_email.id
+  ]
 
 }
 
-module "notification_channels" {
-  source      = "../modules/notification_channels"
-  alert_email = "aishwaryasarath2025@gmail.com"
-  project     = var.project
+# module "notification_channels" {
+#   source      = "../modules/notification_channels"
+#   alert_email = "aishwaryasarath2025@gmail.com"
+#   project     = var.project
+# }
+# module "notification_channels" {
+#   source = "../modules/notification_channels"
+#   for_each = {
+#     primary = "aishwaryasarath2025@gmail.com"
+#     backup  = "aishwaryasarath@gmail.com"
+#   }
+#   alert_email = each.value
+#   project     = var.project
+
+#   #alert_email = "aishwaryasarath2025@gmail.com"
+# }
+
+resource "google_monitoring_notification_channel" "primary_email" {
+  project      = var.project
+  display_name = "Primary Email Alert"
+  type         = "email"
+  labels = {
+    email_address = "aishwaryasarath2025@gmail.com"
+  }
 }
+
+resource "google_monitoring_notification_channel" "backup_email" {
+  project      = var.project
+  display_name = "Backup Email Alert"
+  type         = "email"
+  labels = {
+    email_address = "aishwaryasarath@gmail.com"
+  }
+}
+
 
 module "some_backup_bucket" {
   for_each      = local.regions
@@ -56,12 +90,15 @@ module "some_backup_bucket" {
 }
 
 module "gcs_monitoring" {
-  for_each                 = module.some_backup_bucket
-  source                   = "../modules/gcs_monitoring2"
-  bucket_name              = each.value.bucket_name
-  notification_channel_ids = [module.notification_channels.email_channel_id]
-  project                  = var.project
-  environment              = var.environment
+  for_each    = module.some_backup_bucket
+  source      = "../modules/gcs_monitoring2"
+  bucket_name = each.value.bucket_name
+  notification_channel_ids = [
+    google_monitoring_notification_channel.primary_email.id,
+    google_monitoring_notification_channel.backup_email.id
+  ]
+  project     = var.project
+  environment = var.environment
 
 }
 

@@ -22,3 +22,7 @@ variable "project_id" {
 #   type        = string
 #   description = "GCP region for Redis"
 # }
+
+variable "notification_channel_ids" {
+  type = list(string)
+}

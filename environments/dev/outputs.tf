@@ -86,7 +86,13 @@ output "redis_instance_name" {
   value       = module.redis_instance.redis_instance_name
 
 }
-output "notification_channel_ids" {
-  description = "All notification channel IDs"
-  value       = [for k, m in module.notification_channels : m.email_channel_id]
+# output "notification_channel_ids" {
+#   description = "All notification channel IDs"
+#   value       = [for k, m in module.notification_channels : m.email_channel_id]
+# }
+
+output "redis_memory_utilization_alert_name" {
+  description = "Alert policy display name for Redis memory utilization"
+  value       = module.redis_monitoring.redis_memory_utilization
+
 }

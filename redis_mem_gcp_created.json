@@ -1,0 +1,52 @@
+{
+  "name": "projects/intense-reason-458522-h4/alertPolicies/9442740536083964872",
+  "displayName": "Cloud Redis - System Memory Utilization for test-cluster(us-central1)",
+  "documentation": {
+    "content": "This alert fires if the system memory utilization is above the set threshold. The utilization is measured on a scale of 0 to 1.",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "instance_id": "test-cluster",
+    "resource_type": "redis_instance",
+    "context": "redis",
+    "region": "us-central1",
+    "project_id": "intense-reason-458522-h4"
+  },
+  "conditions": [
+    {
+      "name": "projects/intense-reason-458522-h4/alertPolicies/9442740536083964872/conditions/9442740536083964029",
+      "displayName": "Cloud Memorystore Redis Instance - System Memory Usage Ratio",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_MEAN"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/intense-reason-458522-h4/locations/us-central1/instances/test-cluster\" AND metric.type = \"redis.googleapis.com/stats/memory/system_memory_usage_ratio\"",
+        "thresholdValue": 0.8,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "604800s"
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/intense-reason-458522-h4/notificationChannels/15090855724997326167"
+  ],
+  "creationRecord": {
+    "mutateTime": "2025-07-27T14:52:16.321897974Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2025-07-27T14:52:16.321897974Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  }
+}

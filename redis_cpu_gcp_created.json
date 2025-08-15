@@ -1,0 +1,57 @@
+{
+  "name": "projects/intense-reason-458522-h4/alertPolicies/14013188145855071819",
+  "displayName": "Cloud Redis - Redis Engine CPU utilization for test-cluster(us-central1)",
+  "documentation": {
+    "content": "This alert fires if the Redis Engine CPU Utilization goes above the set threshold. The utilization is measured on a scale of 0 to 1. ",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {
+    "resource_type": "redis_instance",
+    "instance_id": "test-cluster",
+    "context": "redis",
+    "region": "us-central1",
+    "project_id": "intense-reason-458522-h4"
+  },
+  "conditions": [
+    {
+      "name": "projects/intense-reason-458522-h4/alertPolicies/14013188145855071819/conditions/14013188145855071436",
+      "displayName": "Cloud Memorystore Redis Instance - Redis Engine CPU utilization",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "crossSeriesReducer": "REDUCE_SUM",
+            "groupByFields": [
+              "resource.label.instance_id",
+              "resource.label.node_id"
+            ],
+            "perSeriesAligner": "ALIGN_RATE"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "0s",
+        "filter": "resource.type = \"redis_instance\" AND resource.labels.instance_id = \"projects/intense-reason-458522-h4/locations/us-central1/instances/test-cluster\" AND metric.type = \"redis.googleapis.com/stats/cpu_utilization_main_thread\"",
+        "thresholdValue": 0.9,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "604800s"
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [
+    "projects/intense-reason-458522-h4/notificationChannels/15090855724997326167"
+  ],
+  "creationRecord": {
+    "mutateTime": "2025-07-27T14:52:14.313662336Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  },
+  "mutationRecord": {
+    "mutateTime": "2025-07-27T14:52:14.313662336Z",
+    "mutatedBy": "aishwaryasarath2025@gmail.com"
+  }
+}

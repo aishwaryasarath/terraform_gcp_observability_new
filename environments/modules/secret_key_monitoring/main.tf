@@ -22,7 +22,7 @@ EOT
     }
 
     labels {
-      key         = "version"
+      key         = "version_id"
       value_type  = "STRING"
       description = "The version number of the secret"
     }
@@ -30,8 +30,9 @@ EOT
   }
   label_extractors = {
     secret_name = "REGEXP_EXTRACT(protoPayload.response.name, \".*/secrets/([^/]+)/versions/\\\\d+$\")"
-    version     = "REGEXP_EXTRACT(protoPayload.resourceName, \".*/versions/([0-9]+)$\")"
+    version_id  = "REGEXP_EXTRACT(protoPayload.resourceName, \".*/versions/([0-9]+)$\")"
   }
+
 }
 
 # --------- Alert Policy for Secret Version Add ---------
@@ -41,7 +42,7 @@ resource "google_monitoring_alert_policy" "secret_version_added_alert" {
 
   documentation {
     content   = <<EOT
-New secret version added: $${metric.label.version}  
+New secret version added: $${metric.label.version_id}  
 Project id: $${resource.labels.project_id}  
 Secret name: $${metric.label.secret_name}
 EOT
@@ -66,4 +67,5 @@ EOT
   }
 
   notification_channels = var.notification_channel_ids
+  depends_on            = [google_logging_metric.secret_version_added]
 }

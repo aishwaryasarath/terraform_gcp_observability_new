@@ -15,12 +15,12 @@
 #   project  = var.project
 # }
 
-# module "bucket2" {
-#   source   = "../modules/gcs_bucket"
-#   name     = "aish-bucket-2-${var.project}"
-#   location = "US"
-#   project  = var.project
-# }
+module "bucket2" {
+  source   = "../modules/gcs_bucket"
+  name     = "aish-bucket-2-${var.project}"
+  location = "US"
+  project  = var.project
+}
 
 # module "redis_monitoring" {
 #   source              = "../modules/redis_monitoring"
@@ -80,6 +80,16 @@ resource "google_monitoring_notification_channel" "backup_email" {
 
 # }
 
+module "gcs_response_monitoring" {
+  source      = "../modules/gcs_response_monitoring"
+  bucket_name = module.bucket2.bucket_name
+  notification_channel_ids = [
+    google_monitoring_notification_channel.primary_email.id,
+  ]
+  project     = var.project
+  environment = var.environment
+
+}
 
 # module "vertex_ai_monitoring" {
 #   source     = "../modules/vertex_ai_monitoring"
@@ -149,11 +159,11 @@ resource "google_monitoring_notification_channel" "backup_email" {
 # SM works on all envs
 # confirm redis monitoring works on all envs
 
-module "key_monitoring" {
-  source = "../modules/secret_key_monitoring"
-  notification_channel_ids = [
-    google_monitoring_notification_channel.primary_email.id,
-  ]
+# module "key_monitoring" {
+#   source = "../modules/secret_key_monitoring"
+#   notification_channel_ids = [
+#     google_monitoring_notification_channel.primary_email.id,
+#   ]
 
 
-}
+# }

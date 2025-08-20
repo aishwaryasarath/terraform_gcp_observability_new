@@ -81,7 +81,7 @@ resource "google_monitoring_notification_channel" "backup_email" {
 # }
 
 module "gcs_response_monitoring" {
-  source      = "../modules/gcs_response_monitoring"
+  source      = "../modules/response_monitoring"
   bucket_name = module.bucket2.bucket_name
   notification_channel_ids = [
     google_monitoring_notification_channel.primary_email.id,

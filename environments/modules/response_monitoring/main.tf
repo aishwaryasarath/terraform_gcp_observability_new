@@ -213,8 +213,8 @@ resource "google_monitoring_alert_policy" "vertex_ai_4xx_error" {
 
       comparison      = "COMPARISON_GT"
       threshold_value = 5
-      duration        = "60s"
-      #duration        = "300s"
+      #duration        = "60s"
+      duration = "300s"
 
       trigger {
         count = 1
@@ -276,3 +276,4 @@ resource "google_monitoring_alert_policy" "vertex_ai_5xx_error" {
 
   notification_channels = var.notification_channel_ids
 }
+
